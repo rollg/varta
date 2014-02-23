@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>Operator</title>
+
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.css' rel='stylesheet' />
+<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+</style>
+</head>
+<body>
+<div id='map'></div>
+
+<script>
+var map = L.mapbox.map('map', 'examples.map-20v6611k')
+    .setView([49.84, 23.99], 11);
+
+var sock = new SockJS('/sockjs/operator');
+sock.onopen = function() {
+    console.log('open');
+};
+sock.onmessage = function(e) {
+    console.log('message', e);
+    var pack = JSON.parse(e.data);
+
+    var position = pack.message;
+
+    L.mapbox.featureLayer({
+        // this feature is in the GeoJSON format: see geojson.org
+        // for the full specification
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            // coordinates here are in longitude, latitude order because
+            // x, y is the standard for GeoJSON and many formats
+            coordinates: [position.coords.longitude, position.coords.latitude]
+        },
+        properties: {
+            title: 'A Single Marker',
+            description: 'Just one of me',
+            // one can customize markers by adding simplestyle properties
+            // http://mapbox.com/developers/simplestyle/
+            'marker-size': 'large',
+            'marker-color': '#f0a'
+        }
+    }).addTo(map);
+
+};
+sock.onclose = function() {
+    console.log('close');
+};
+</script>
+</body>
+</html>
