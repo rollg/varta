@@ -24,13 +24,42 @@ var map = L.mapbox.map('map', 'examples.map-20v6611k')
 var sock = new SockJS('/sockjs/operator');
 sock.onopen = function() {
     console.log('open');
+    subscribe();
 };
+
 sock.onmessage = function(e) {
     console.log('message', e);
-    var pack = JSON.parse(e.data);
+    var msg = JSON.parse(e.data);
+    switch (msg.cmd) {
+        case 'position':
+            addMarker(msg.position);
+            break;
 
-    var position = pack.message;
+        default:
+            console.error('unknown command:', msg);
+    }
+};
 
+sock.onclose = function() {
+    console.log('close');
+};
+
+function subscribe() {
+    var channels = ['all'];
+    if (window.location.search) {
+        channels = window.location.search.substr(1).split(',');
+    }
+    console.log('subscribing to channels:', channels);
+    channels.forEach(function(channel) {
+        var msg = {
+            cmd: 'subscribe',
+            channel: channel
+        };
+        sock.send(JSON.stringify(msg));
+    });
+}
+
+function addMarker(position) {
     L.mapbox.featureLayer({
         // this feature is in the GeoJSON format: see geojson.org
         // for the full specification
@@ -50,11 +79,7 @@ sock.onmessage = function(e) {
             'marker-color': '#f0a'
         }
     }).addTo(map);
-
-};
-sock.onclose = function() {
-    console.log('close');
-};
+}
 </script>
 </body>
 </html>
