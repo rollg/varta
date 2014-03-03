@@ -21,6 +21,8 @@
 var map = L.mapbox.map('map', 'examples.map-20v6611k')
     .setView([49.84, 23.99], 11);
 
+var layers = {};
+
 var sock = new SockJS('/sockjs/operator');
 sock.onopen = function() {
     console.log('open');
@@ -31,8 +33,12 @@ sock.onmessage = function(e) {
     console.log('message', e);
     var msg = JSON.parse(e.data);
     switch (msg.cmd) {
-        case 'position':
-            addMarker(msg.position);
+        case 'agents':
+            addMarkers(msg.agents);
+            break;
+
+        case 'leave':
+            removeMarkers(msg.ids);
             break;
 
         default:
@@ -59,8 +65,13 @@ function subscribe() {
     });
 }
 
-function addMarker(position) {
-    L.mapbox.featureLayer({
+function addMarkers(agents) {
+    agents.forEach(addMarker);
+}
+
+function addMarker(agent) {
+    var position = agent.position;
+    layers[agent.id] = L.mapbox.featureLayer({
         // this feature is in the GeoJSON format: see geojson.org
         // for the full specification
         type: 'Feature',
@@ -71,14 +82,29 @@ function addMarker(position) {
             coordinates: [position.coords.longitude, position.coords.latitude]
         },
         properties: {
-            title: 'A Single Marker',
+            title: 'ID: ' + agent.id,
             description: 'Just one of me',
             // one can customize markers by adding simplestyle properties
             // http://mapbox.com/developers/simplestyle/
             'marker-size': 'large',
             'marker-color': '#f0a'
         }
-    }).addTo(map);
+    });
+    layers[agent.id].addTo(map)
+}
+
+function removeMarkers(ids) {
+    ids.forEach(function(id) {
+        removeMarker(id);
+    });
+}
+
+function removeMarker(id) {
+    var layer = layers[id];
+    if (!layer) {
+        return;
+    }
+    map.removeLayer(layer);
 }
 </script>
 </body>

@@ -4,6 +4,7 @@ go();
 function go(){
     sock.onopen = function() {
         console.log('open');
+        joinChannel('all');
     };
     sock.onmessage = function(e) {
         console.log('message', e.data);
@@ -36,9 +37,13 @@ function go(){
 
 $('#join_channel').on('click', function() {
     var channel = $('#join_channel_name').val();
-    var msg = {
-        cmd: 'join',
-        channel: channel
-    };
-    sock.send(JSON.stringify(msg));
+    joinChannel(channel);
 });
+
+function joinChannel(channel) {
+   var msg = {
+       cmd: 'join',
+       channel: channel
+   };
+   sock.send(JSON.stringify(msg));
+}
