@@ -1,0 +1,177 @@
+/* Reset staff goes temporary here */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,input,table,caption,tbody,tfoot,thead,tr,th,td
+{
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+
+ol,ul {
+    list-style: none;
+}
+
+.clear-floats {
+    clear: both;
+    width: 0;
+    height: 0;
+    font-size:0;
+    line-height:0;
+}
+
+/* Reset Ending */
+
+/* Fonts */
+
+.regular {
+    font-family: 'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.header {
+    font-family: 'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+/* Fonts Ending */
+
+#main-menu-wrapper {
+    height: 100px;
+    width: 160px;
+    position: absolute;
+    left: 100px;
+    top: 30px;
+    z-index: 9999;
+    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif;
+    font-size:12px;
+}
+
+.menu-header {
+    width: 100%;
+    background-color: #8989CF;
+    text-align: left;
+    vertical-align: middle;
+    position: relative;
+    font-size: 22px;
+    padding: 9px 20px;
+    color: #ffffff;
+}
+
+#list-of-guardians-wrapper {
+    position: absolute;
+    padding-top: 15px;
+}
+
+#guardians-icon {
+    display: inline-block;
+    background: url("/img/icon_people.png") no-repeat 0 0;
+    width: 45px;
+    height: 40px;
+    background-size: 45px 40px;
+    padding-right: 10px;
+}
+
+#guardians-header {
+    background-color: #e8e8e8;
+    width: 100%;
+    height: 45px;
+    min-width: 200px;
+}
+
+#guardians-number {
+    float: right;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #000000;
+}
+
+.header-left-part {
+    float: left;
+}
+
+.header-right-part {
+    padding: 13px 0 0 0;
+    width: 160px;
+}
+
+#ui-list-of-guardians {
+    background-color: #FEFEFE;
+}
+
+#ui-list-of-guardians li.guardian-name-wrapper {
+    min-height: 45px;
+    border-top: 1px solid #F7F7F7;
+    cursor: pointer;
+    position: relative;
+}
+
+.guardian-name-wrapper:active {
+    background-color: #F7F7F7;
+}
+
+#ui-list-of-guardians .guardian-name {
+    padding: 13px 15px;
+}
+
+#ui-list-of-guardians .guardian-info-wrapper {
+    display: none;
+}
+
+.selected-guardian {
+    background-color: #F7F7F7;
+}
+
+#ui-list-of-guardians .cell-number {
+    display: none;
+    position: relative;
+    left: 15px;
+    bottom: 10px;
+}
+
+.mic-icon {
+    display: inline-block;
+    background: url("/img/mic.png") no-repeat 0 0;
+    width: 45px;
+    height: 45px;
+    background-size: 35px 45px;
+}
+
+.mic-icon-border {
+    border-left: solid #FAFAFA;
+    height: 45px;
+    display: inline-block;
+}
+
+.mic-icon-wrapper {
+    position: absolute;
+    right: 15px;
+    top: 5px;
+}
+
+.info-wrapper .checked-in,
+.info-wrapper .duration,
+.info-wrapper .distance {
+    padding: 3px 8px;
+}
+
+.info-wrapper .checked-in-value,
+.info-wrapper .duration-value,
+.info-wrapper .distance-value {
+    float: right;
+    padding: -0 25px;
+}
+
+.notes {
+    color: #C7C7C7;
+    padding: 10px 12px 18px 18px;
+}

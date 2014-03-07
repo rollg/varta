@@ -7,8 +7,10 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.css' rel='stylesheet' />
+<!--<link href='css/index.css.css' rel='stylesheet' />-->
+<link href='css/menu.css' rel='stylesheet' />
 <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
-<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
 <style>
   body { margin:0; padding:0; }
@@ -17,12 +19,108 @@
 </head>
 <body>
 <div id='map'></div>
+<div id="main-menu-wrapper">
+    <div class="">
+        <h3 class="menu-header">Lviv Guard</h3>
+    </div>
+    <div id="list-of-guardians-wrapper">
+        <div id="guardians-header">
+            <div id="guardians-icon" class="header-left-part"></div>
+            <div class="header-right-part">
+                <span id="guardians-position-header" class="header">Lviv1</span>
+                <span id="guardians-number" class="header">7</span>
+            </div>
+            <div class="clear-floats"></div>
+        </div>
+
+        <ul id="ui-list-of-guardians">
+            <li class="guardian-name-wrapper">
+                <p class="guardian-name regular">tikitiki</p>
+                <div class="cell-number">063 271 71 71</div>
+
+                <ul class="info-wrapper regular">
+                    <li class="guardian-info-wrapper">
+                        <div class="mic-icon-wrapper">
+                            <div class="mic-icon-border"></div>
+                            <div class="mic-icon"></div>
+                        </div>
+                        <div class="checked-in">
+                            <span class="checked-in">Check-in</span>
+                            <p class="checked-in-value bold">22:40</p>
+                        </div>
+                        <div class="duration">
+                            <span class="duration">Duration</span>
+                            <p class="duration-value bold">2h10m</p>
+                        </div>
+                        <div class="distance">
+                            <span class="distance">Distance</span>
+                            <p class="distance-value bold">18.5 km</p>
+                        </div>
+                        <div class="notes">Notes</div>
+                    </li>
+                </ul>
+            </li>
+            <li class="guardian-name-wrapper">
+                <p class="guardian-name regular">djodjo</p>
+                <div class="cell-number">063 271 71 71</div>
+                <ul class="info-wrapper">
+                    <li class="guardian-info-wrapper">
+                        <div class="mic-icon-wrapper">
+                            <div class="mic-icon-border"></div>
+                            <div class="mic-icon"></div>
+                        </div>
+                        <div class="checked-in">
+                            <span class="checked-in">Check-in</span>
+                            <p class="checked-in-value bold">22:40</p>
+                        </div>
+                        <div class="duration">
+                            <span class="duration">Duration</span>
+                            <p class="duration-value bold">2h10m</p>
+                        </div>
+                        <div class="distance">
+                            <span class="distance">Distance</span>
+                            <p class="distance-value bold">18.5 km</p>
+                        </div>
+                        <div class="notes">Notes</div>
+                    </li>
+                </ul>
+        </ul>
+    </div>
+</div>
 
 <script>
 var map = L.mapbox.map('map', 'examples.map-20v6611k')
     .setView([49.84, 23.99], 11);
 
+var agentsInfo = [];
 var layers = {};
+
+//TODO This might be moved to another place to make the code more readable
+// Menu click handler
+$('li.guardian-name-wrapper').click(function () {
+    var header = $(this).find('.guardian-name');
+
+    if ($(this).hasClass('selected-guardian')) {
+        $(this).find('.guardian-info-wrapper').hide();
+        $(this).find('.cell-number').hide();
+        header.removeClass('bold');
+        $('.selected-guardian').removeClass('selected-guardian');
+    } else {
+        $('.guardian-name').removeClass('bold')
+        $('.cell-number').hide();;
+        header.addClass('bold');
+        var lis = $('#ui-list-of-guardians').find('.guardian-info-wrapper');
+
+        // If any of the guardian's info is visible - hide them all
+        if (lis.is(':visible')) {
+            lis.hide();
+            $('.selected-guardian').removeClass('selected-guardian');
+        }
+        $(this).find('.guardian-info-wrapper').show();
+        $(this).find('.cell-number').show();
+        $(this).addClass('selected-guardian');
+    }
+});
 
 var sock = new SockJS('/sockjs/operator');
 sock.onopen = function() {
@@ -42,71 +140,176 @@ sock.onmessage = function(e) {
             removeMarkers(msg.ids);
             break;
 
-        default:
-            console.error('unknown command:', msg);
-    }
-};
-
-sock.onclose = function() {
-    console.log('close');
-};
-
-function subscribe() {
-    var channels = ['all'];
-    if (window.location.search) {
-        channels = window.location.search.substr(1).split(',');
-    }
-    console.log('subscribing to channels:', channels);
-    channels.forEach(function(channel) {
-        var msg = {
-            cmd: 'subscribe',
-            channel: channel
-        };
-        sock.send(JSON.stringify(msg));
-    });
-}
-
-function addMarkers(agents) {
-    agents.forEach(addMarker);
-}
-
-function addMarker(agent) {
-    var position = agent.position;
-    layers[agent.id] = L.mapbox.featureLayer({
-        // this feature is in the GeoJSON format: see geojson.org
-        // for the full specification
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            // coordinates here are in longitude, latitude order because
-            // x, y is the standard for GeoJSON and many formats
-            coordinates: [position.coords.longitude, position.coords.latitude]
-        },
-        properties: {
-            title: 'ID: ' + agent.id,
-            description: 'Just one of me',
-            // one can customize markers by adding simplestyle properties
-            // http://mapbox.com/developers/simplestyle/
-            'marker-size': 'large',
-            'marker-color': '#f0a'
+            default:
+                console.error('unknown command:', msg);
         }
-    });
-    layers[agent.id].addTo(map)
-}
+    };
 
-function removeMarkers(ids) {
-    ids.forEach(function(id) {
-        removeMarker(id);
-    });
-}
+    sock.onclose = function() {
+        console.log('close');
+    };
 
-function removeMarker(id) {
-    var layer = layers[id];
-    if (!layer) {
-        return;
+    function subscribe() {
+        var channels = ['all'];
+        if (window.location.search) {
+            channels = window.location.search.substr(1).split(',');
+        }
+        console.log('subscribing to channels:', channels);
+        channels.forEach(function(channel) {
+            var msg = {
+                cmd: 'subscribe',
+                channel: channel
+            };
+            sock.send(JSON.stringify(msg));
+        });
     }
-    map.removeLayer(layer);
-}
+
+    function addMarkers(agents) {
+        agents.forEach(addMarker);
+    }
+
+    function addMarker(agent) {
+        var position = agent.position;
+
+        if (agent.position.coords.heading) {
+            console.log(agent.position.coords.heading);
+        }
+
+        if (agentsInfo.filter(function(item) { return item.id === agent.id; }).length === 0) {
+            agentsInfo.push({ id: agent.id, coordinates: [[agent.position.coords.latitude, agent.position.coords.longitude]] });
+
+            layers[agent.id] = L.marker (L.latLng(agent.position.coords.latitude, agent.position.coords.longitude),
+                    {
+                        title: agent.id
+                    }).bindPopup('<p>My id is: ' + agent.id + '</p>', {
+                        closeButton: false
+                    });
+
+            layers[agent.id].addTo(map);
+
+            layers[agent.id].on('click', function() {
+                if (!layers[agent.id].getPopup()._isOpen){
+                    this.closePopup();
+                } else {
+                    this.openPopup();
+                }
+
+                if (agent.routeIsVisible){
+                    agent.routeIsVisible = false;
+                } else {
+                    agent.routeIsVisible = true;
+                }
+
+                //Enable redraw if the route is visible
+                drawRoute(agent, agent.routeIsVisible);
+            });
+
+            layers[agent.id].on('move', function(e) {
+                drawRoute(agent, agent.routeIsVisible);
+            })
+
+        } else {
+            positionUpdated(agent);
+        }
+    }
+
+    function removeMarkers(ids) {
+        ids.forEach(function(id) {
+            removeMarker(id);
+        });
+    }
+
+    function removeMarker(id) {
+        var layer = layers[id],
+                agent;
+
+        if (!layer) {
+            return;
+        }
+        map.removeLayer(layer);
+
+        agent = agentsInfo.filter(function(item) { return item.id === id; });
+
+        //Check if the agent who disappears has the route visible if he/she does - removes it from the map
+        if (agent[0].routeIsVisible){
+            removeRoute();
+        }
+    }
+
+    /**
+     * Update position of the marker on the map
+     * @param agent
+     */
+    function positionUpdated(agent) {
+        var currentPosition = { latitude: agent.position.coords.latitude, longitude: agent.position.coords.longitude},
+                agents = agentsInfo,
+                currentGeoJson;
+
+        for (var key in agents) {
+            if (agents[key].id === agent.id) {
+                agents[key].coordinates.push([agent.position.coords.latitude, agent.position.coords.longitude]);
+
+                //Update agents' coordinates
+                layers[agent.id].setLatLng([agent.position.coords.latitude, agent.position.coords.longitude]);
+                break;
+            };
+        }
+
+        if (agent.routeIsVisible) {
+            drawRoute(agent, true);
+        }
+    }
+
+/**
+ * Drawing the route agent did
+ * @param agent - Current agent
+ * @param redraw - This boolean value is needed to determine if we have to redraw the full route of the agent, - means that the coordinates of the route has been updated
+ */
+    function drawRoute(agent, redraw) {
+        var pointList,
+            routeLine,
+            agents = agentsInfo,
+            routeCoordinates = [];
+
+        for (var key in agents) {
+            if (agents[key].id === agent.id) {
+                routeCoordinates.push(agents[key].coordinates);
+                if (agent.routeIsVisible) {
+                    agents[key].routeIsVisible = true;
+                }
+                break;
+            };
+        }
+
+        if (redraw) {
+            removeRoute();
+        }
+
+        if (routeCoordinates[0] && agent.routeIsVisible) {
+            pointList = [routeCoordinates[0]];
+
+            routeLine = L.polyline(pointList[0], {
+                color: '#8989CF',
+                weight: 3,
+                smoothFactor: 1
+            }).toGeoJSON();
+
+          map.addLayer(L.geoJson(routeLine)).fire('routeAdded');
+
+        } else {
+            agent.routeIsVisible = false;
+            agent = agentsInfo.filter(function(item) { return item.id === agent.id; });
+            agent.routeIsVisible = false;
+        }
+    }
+
+/**
+ * Removes the route that the marker did
+ */
+    function removeRoute() {
+        $('svg.leaflet-zoom-animated').empty()
+    }
+
 </script>
 </body>
 </html>
