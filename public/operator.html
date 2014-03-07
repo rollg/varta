@@ -7,8 +7,10 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.css' rel='stylesheet' />
+<link href='css/index.css.css' rel='stylesheet' />
+<link href='css/menu.css' rel='stylesheet' />
 <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
-<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 
 <style>
   body { margin:0; padding:0; }
@@ -17,12 +19,107 @@
 </head>
 <body>
 <div id='map'></div>
+<div id="main-menu-wrapper">
+    <div class="">
+        <h3 class="menu-header">Lviv Guard</h3>
+    </div>
+    <div id="list-of-guardians-wrapper">
+        <div id="guardians-header">
+            <div id="guardians-icon" class="header-left-part"></div>
+            <div class="header-right-part">
+                <span id="guardians-position-header" class="header">Lviv1</span>
+                <span id="guardians-number" class="header">7</span>
+            </div>
+            <div class="clear-floats"></div>
+        </div>
+
+        <ul id="ui-list-of-guardians">
+            <li class="guardian-name-wrapper">
+                <p class="guardian-name regular">tikitiki</p>
+                <div class="cell-number">063 271 71 71</div>
+
+                <ul class="info-wrapper regular">
+                    <li class="guardian-info-wrapper">
+                        <div class="mic-icon-wrapper">
+                            <div class="mic-icon-border"></div>
+                            <div class="mic-icon"></div>
+                        </div>
+                        <div class="checked-in">
+                            <span class="checked-in">Check-in</span>
+                            <p class="checked-in-value bold">22:40</p>
+                        </div>
+                        <div class="duration">
+                            <span class="duration">Duration</span>
+                            <p class="duration-value bold">2h10m</p>
+                        </div>
+                        <div class="distance">
+                            <span class="distance">Distance</span>
+                            <p class="distance-value bold">18.5 km</p>
+                        </div>
+                        <div class="notes">Notes</div>
+                    </li>
+                </ul>
+            </li>
+            <li class="guardian-name-wrapper">
+                <p class="guardian-name regular">djodjo</p>
+                <div class="cell-number">063 271 71 71</div>
+                <ul class="info-wrapper">
+                    <li class="guardian-info-wrapper">
+                        <div class="mic-icon-wrapper">
+                            <div class="mic-icon-border"></div>
+                            <div class="mic-icon"></div>
+                        </div>
+                        <div class="checked-in">
+                            <span class="checked-in">Check-in</span>
+                            <p class="checked-in-value bold">22:40</p>
+                        </div>
+                        <div class="duration">
+                            <span class="duration">Duration</span>
+                            <p class="duration-value bold">2h10m</p>
+                        </div>
+                        <div class="distance">
+                            <span class="distance">Distance</span>
+                            <p class="distance-value bold">18.5 km</p>
+                        </div>
+                        <div class="notes">Notes</div>
+                    </li>
+                </ul>
+        </ul>
+    </div>
+</div>
 
 <script>
 var map = L.mapbox.map('map', 'examples.map-20v6611k')
     .setView([49.84, 23.99], 11);
 
 var layers = {};
+
+//TODO This might be moved to another place to make the code more readable
+// Menu click handler
+$('li.guardian-name-wrapper').click(function () {
+    var header = $(this).find('.guardian-name');
+
+    if ($(this).hasClass('selected-guardian')) {
+        $(this).find('.guardian-info-wrapper').hide();
+        $(this).find('.cell-number').hide();
+        header.removeClass('bold');
+        $('.selected-guardian').removeClass('selected-guardian');
+    } else {
+        $('.guardian-name').removeClass('bold')
+        $('.cell-number').hide();;
+        header.addClass('bold');
+        var lis = $('#ui-list-of-guardians').find('.guardian-info-wrapper');
+
+        // If any of the guardian's info is visible - hide them all
+        if (lis.is(':visible')) {
+            lis.hide();
+            $('.selected-guardian').removeClass('selected-guardian');
+        }
+        $(this).find('.guardian-info-wrapper').show();
+        $(this).find('.cell-number').show();
+        $(this).addClass('selected-guardian');
+    }
+});
 
 var sock = new SockJS('/sockjs/operator');
 sock.onopen = function() {
