@@ -7,7 +7,7 @@
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 <script src='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox.js/v1.6.1/mapbox.css' rel='stylesheet' />
-<link href='css/index.css.css' rel='stylesheet' />
+<link href='css/index.css' rel='stylesheet' />
 <link href='css/menu.css' rel='stylesheet' />
 <script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -95,6 +95,33 @@ var map = L.mapbox.map('map', 'examples.map-20v6611k')
 var agentsInfo = [];
 var layers = {};
 
+//Icon description
+var agentIcon = L.divIcon ({ className: 'my-div-icon' });
+
+//Rotated marker
+L.RotatedMarker = L.Marker.extend({
+    options: { angle: 0 },
+    _setPos: function(pos) {
+        L.Marker.prototype._setPos.call(this, pos);
+        if (L.DomUtil.TRANSFORM) {
+            // use the CSS transform rule if available
+            this._icon.style[L.DomUtil.TRANSFORM] += ' rotate(' + this.options.angle + 'deg)';
+        } else if (L.Browser.ie) {
+            // fallback for IE6, IE7, IE8
+            var rad = this.options.angle * L.LatLng.DEG_TO_RAD,
+                    costheta = Math.cos(rad),
+                    sintheta = Math.sin(rad);
+            this._icon.style.filter += ' progid:DXImageTransform.Microsoft.Matrix(sizingMethod=\'auto expand\', M11=' +
+                    costheta + ', M12=' + (-sintheta) + ', M21=' + sintheta + ', M22=' + costheta + ')';
+        }
+    }
+});
+
+L.rotatedMarker = function(pos, options) {
+    return new L.RotatedMarker(pos, options);
+};
+
+
 //TODO This might be moved to another place to make the code more readable
 // Menu click handler
 $('li.guardian-name-wrapper').click(function () {
@@ -178,9 +205,14 @@ sock.onmessage = function(e) {
         if (agentsInfo.filter(function(item) { return item.id === agent.id; }).length === 0) {
             agentsInfo.push({ id: agent.id, coordinates: [[agent.position.coords.latitude, agent.position.coords.longitude]] });
 
-            layers[agent.id] = L.marker (L.latLng(agent.position.coords.latitude, agent.position.coords.longitude),
+            layers[agent.id] = L.rotatedMarker(new L.LatLng(agent.position.coords.latitude, agent.position.coords.longitude),
                     {
-                        title: agent.id
+                        title: agent.id,
+                        icon: L.icon({
+                            iconUrl: 'img/icon_pin.png',
+                            iconSize: [24, 24]
+                        }),
+                        draggable: true
                     }).bindPopup('<p>My id is: ' + agent.id + '</p>', {
                         closeButton: false
                     });
@@ -205,8 +237,14 @@ sock.onmessage = function(e) {
             });
 
             layers[agent.id].on('move', function(e) {
+                if (agent.position.coords.heading === null) {
+                    agent.position.coords.heading = 0.0;
+                }
+
+                this.options.angle = agent.position.coords.heading;
                 drawRoute(agent, agent.routeIsVisible);
-            })
+                this.update();
+            });
 
         } else {
             positionUpdated(agent);
@@ -295,11 +333,6 @@ sock.onmessage = function(e) {
             }).toGeoJSON();
 
           map.addLayer(L.geoJson(routeLine)).fire('routeAdded');
-
-        } else {
-            agent.routeIsVisible = false;
-            agent = agentsInfo.filter(function(item) { return item.id === agent.id; });
-            agent.routeIsVisible = false;
         }
     }
 
