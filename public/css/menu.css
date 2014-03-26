@@ -73,10 +73,10 @@ ol,ul {
 
 #guardians-icon {
     display: inline-block;
-    background: url("/img/icon_people.png") no-repeat 0 0;
+    background: url("/img/icon_people.png") no-repeat 12px 4px;
     width: 45px;
     height: 40px;
-    background-size: 45px 40px;
+    background-size: 33px 36px;
     padding-right: 10px;
 }
 

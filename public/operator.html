@@ -211,8 +211,8 @@ sock.onmessage = function(e) {
                         icon: L.icon({
                             iconUrl: 'img/icon_pin.png',
                             iconSize: [24, 24]
-                        }),
-                        draggable: true
+                        })/*,
+                        draggable: true*/
                     }).bindPopup('<p>My id is: ' + agent.id + '</p>', {
                         closeButton: false
                     });
@@ -280,8 +280,7 @@ sock.onmessage = function(e) {
      */
     function positionUpdated(agent) {
         var currentPosition = { latitude: agent.position.coords.latitude, longitude: agent.position.coords.longitude},
-                agents = agentsInfo,
-                currentGeoJson;
+                agents = agentsInfo;
 
         for (var key in agents) {
             if (agents[key].id === agent.id) {
@@ -333,6 +332,8 @@ sock.onmessage = function(e) {
             }).toGeoJSON();
 
           map.addLayer(L.geoJson(routeLine)).fire('routeAdded');
+        } else {
+            removeRoute();
         }
     }
 
